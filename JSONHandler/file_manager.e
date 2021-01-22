@@ -71,4 +71,18 @@ feature -- Public
 			end
 			result := lines_splitted
 		end
+
+	write_file (string_path: STRING; text: STRING)
+
+		local
+			file: PLAIN_TEXT_FILE
+			path: PATH
+
+		do
+			create path.make_from_string (string_path)
+			create file.make_with_path (path)
+			file.open_write
+			file.put_string (text)
+			file.close
+		end
 end

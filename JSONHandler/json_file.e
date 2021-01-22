@@ -8,6 +8,9 @@ class
 	JSON_FILE
 
 create
+	make
+
+create
 	make_from_json
 
 create
@@ -19,6 +22,15 @@ feature -- Initialization
 	header: ARRAYED_LIST [STRING]
 	types: ARRAYED_LIST [STRING]
 	body: ARRAYED_LIST [JSON_OBJECT]
+
+	make
+
+		do
+			create name.make_empty
+			create header.make (0)
+			create types.make (0)
+			create body.make (0)
+		end
 
 	make_from_json (i_name: STRING; i_header: ARRAYED_LIST [STRING]; i_types: ARRAYED_LIST [STRING]; i_body: ARRAYED_LIST [JSON_OBJECT])
 

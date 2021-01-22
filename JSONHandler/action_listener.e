@@ -48,7 +48,22 @@ feature -- Public
 				Io.put_string (json.to_string)
 				Io.new_line
 			else
-				Io.put_string ("This name already exists")
+				Io.put_string ("Specified name already exists")
+			end
+		end
+
+	save (name: STRING; path: STRING)
+
+		local
+			json: JSON_FILE
+
+		do
+			create json.make
+			json := json_hash.at (name)
+			if attached json then
+				file_manager.write_file (path, json.body_to_string)
+			else
+				Io.put_string ("Specified name doesnt exist")
 			end
 		end
 
