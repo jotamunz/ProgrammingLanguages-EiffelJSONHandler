@@ -45,7 +45,8 @@ feature -- Public
 				create body.make_from_iterable (File_manager.split_semicolon_multiple (file_lines))
 				create json.make_from_list (name, header, types, body)
 				json_hash.put (json, name)
-				json.print_all
+				Io.put_string (json.to_string)
+				Io.new_line
 			else
 				Io.put_string ("This name already exists")
 			end

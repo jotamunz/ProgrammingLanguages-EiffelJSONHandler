@@ -75,45 +75,55 @@ feature {NONE} -- Private
 
 feature -- Public
 
-	print_all
+	to_string : STRING
+
+		local
+			json_string: STRING
 
 		do
-			Io.put_string (name)
-			Io.new_line
+			create json_string.make_from_string (name + "%N")
 
 			across header as head
 			loop
-				Io.put_string (head.item + ", ")
+				json_string.append (head.item + ", ")
 			end
-			Io.new_line
+			json_string.remove_tail (2)
+			json_string.append ("%N")
 
 			across types as type
 			loop
-				Io.put_string (type.item + ", ")
+				json_string.append (type.item + ", ")
 			end
-			Io.new_line
-
-			print_body
+			json_string.remove_tail (2)
+			json_string.append ("%N")
+			json_string.append (body_to_string)
+			result := json_string
 		end
 
-	print_body
+	body_to_string : STRING
 
 		local
 			keys: ARRAYED_LIST [JSON_STRING]
+			body_string: STRING
 
 		do
+			create body_string.make_from_string ("[%N")
 			across body as line
 			loop
+				body_string.append ("{")
 				create keys.make_from_iterable(line.item.map_representation.current_keys)
 				across keys as key
 				loop
 					if attached line.item.item (key.item) as value then
-						Io.put_string (key.item.representation + ": ")
-						Io.put_string (value.representation + ", ")
+						body_string.append (key.item.representation + ": " + value.representation + ", ")
 					end
 				end
-				Io.new_line
+				body_string.remove_tail (2)
+				body_string.append ("},%N")
 			end
+			body_string.remove_tail (2)
+			body_string.append ("%N]")
+			result := body_string
 		end
 
 end
