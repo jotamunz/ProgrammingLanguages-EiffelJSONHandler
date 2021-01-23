@@ -21,7 +21,7 @@ feature {NONE} -- Initialization
 		do
 			create listener.make
 			listener.load("Equipos", "Equipos.csv")
-			listener.save ("Equipos", "Equipos2.csv")
+			listener.save ("Equipos", "Equipos2.txt", True)
 		end
 
 end

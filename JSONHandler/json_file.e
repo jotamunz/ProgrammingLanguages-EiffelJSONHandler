@@ -95,9 +95,9 @@ feature -- Public
 		do
 			create json_string.make_from_string (name + "%N")
 
-			across header as head
+			across header as key
 			loop
-				json_string.append (head.item + ", ")
+				json_string.append (key.item + ", ")
 			end
 			json_string.remove_tail (2)
 			json_string.append ("%N")
@@ -115,7 +115,6 @@ feature -- Public
 	body_to_string : STRING
 
 		local
-			keys: ARRAYED_LIST [JSON_STRING]
 			body_string: STRING
 
 		do
@@ -123,11 +122,10 @@ feature -- Public
 			across body as line
 			loop
 				body_string.append ("{")
-				create keys.make_from_iterable(line.item.map_representation.current_keys)
-				across keys as key
+				across header as key
 				loop
 					if attached line.item.item (key.item) as value then
-						body_string.append (key.item.representation + ": " + value.representation + ", ")
+						body_string.append ("%"" + key.item + "%":" + value.representation + ", ")
 					end
 				end
 				body_string.remove_tail (2)
@@ -136,6 +134,48 @@ feature -- Public
 			body_string.remove_tail (2)
 			body_string.append ("%N]")
 			result := body_string
+		end
+
+	to_csv_string : STRING
+
+		local
+			json_string: STRING
+			value_string: STRING
+
+		do
+			create json_string.make_empty
+
+			across header as head
+			loop
+				json_string.append (head.item + ";")
+			end
+			json_string.remove_tail (1)
+			json_string.append ("%N")
+
+			across types as type
+			loop
+				json_string.append (type.item + ";")
+			end
+			json_string.remove_tail (1)
+			json_string.append ("%N")
+
+			across body as line
+				loop
+					across header as key
+					loop
+						if attached line.item.item (key.item) as value then
+							create value_string.make_from_string (value.representation)
+							if attached {JSON_STRING} value then
+								value_string.remove_head (1)
+								value_string.remove_tail (1)
+							end
+							json_string.append (value_string + ";")
+						end
+					end
+					json_string.remove_tail (1)
+					json_string.append ("%N")
+				end
+			result := json_string
 		end
 
 end

@@ -52,7 +52,7 @@ feature -- Public
 			end
 		end
 
-	save (name: STRING; path: STRING)
+	save (name: STRING; path: STRING; csv: BOOLEAN)
 
 		local
 			json: JSON_FILE
@@ -61,7 +61,11 @@ feature -- Public
 			create json.make
 			json := json_hash.at (name)
 			if attached json then
-				file_manager.write_file (path, json.body_to_string)
+				if csv then
+					file_manager.write_file (path, json.to_csv_string)
+				else
+					file_manager.write_file (path, json.body_to_string)
+				end
 			else
 				Io.put_string ("Specified name doesnt exist")
 			end
