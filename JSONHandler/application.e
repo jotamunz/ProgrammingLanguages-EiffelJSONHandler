@@ -21,7 +21,7 @@ feature {NONE} -- Initialization
 		do
 			create listener.make
 			listener.load("Equipos", "Equipos.csv")
-			listener.save ("Equipos", "Equipos2.txt", True)
+			listener.json_from_matching("Equipos", "Equipos2", "alojamiento", "%"" + "Edificio A1" + "%"")
 		end
 
 end

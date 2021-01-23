@@ -71,4 +71,24 @@ feature -- Public
 			end
 		end
 
+	json_from_matching (name: STRING; new_name: STRING; key: STRING; value: STRING)
+
+		local
+			json: JSON_FILE
+			new_json: JSON_FILE
+			matching_lines: ARRAYED_LIST [JSON_OBJECT]
+
+		do
+			create json.make
+			json := json_hash.at (name)
+			if attached json and not json_hash.has (new_name) then
+				create matching_lines.make_from_iterable (json.matching_lines (key, value))
+				create new_json.make_from_json (new_name, json.header, json.types, matching_lines)
+				json_hash.put (new_json, new_name)
+				Io.put_string (new_json.to_string)
+				Io.new_line
+			else
+				Io.put_string ("Specified name doesnt exist or new name already exists")
+			end
+		end
 end

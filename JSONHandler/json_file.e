@@ -87,6 +87,24 @@ feature {NONE} -- Private
 
 feature -- Public
 
+	matching_lines (key: STRING; value_string: STRING) : ARRAYED_LIST [JSON_OBJECT]
+
+		local
+			matching_jsons: ARRAYED_LIST [JSON_OBJECT]
+
+		do
+			create matching_jsons.make (0)
+			across body as line
+			loop
+				if attached line.item.item (key) as value then
+					if value_string.same_string (value.representation) then
+						matching_jsons.extend (line.item)
+					end
+				end
+			end
+			result := matching_jsons
+		end
+
 	to_string : STRING
 
 		local
