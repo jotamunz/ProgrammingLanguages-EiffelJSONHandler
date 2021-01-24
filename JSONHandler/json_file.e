@@ -105,6 +105,54 @@ feature -- Public
 			result := matching_jsons
 		end
 
+	get_columns (keys: ARRAYED_LIST [STRING]) : ARRAYED_LIST [JSON_OBJECT]
+
+		local
+			matching_columns: ARRAYED_LIST [JSON_OBJECT]
+			new_json: JSON_OBJECT
+
+		do
+			create matching_columns.make (0)
+			across body as line
+			loop
+				create new_json.make_empty
+				across keys as key
+				loop
+					if attached line.item.item (key.item) as value then
+						new_json.put (value, key.item)
+					end
+				end
+				matching_columns.extend (new_json)
+			end
+			result := matching_columns
+		end
+
+	get_types (keys: ARRAYED_LIST [STRING]) : ARRAYED_LIST [STRING]
+
+		local
+			matching_types: ARRAYED_LIST [STRING]
+			i: INTEGER
+			max: INTEGER
+
+		do
+			create matching_types.make (0)
+			from
+				i := 1
+				max := header.count
+			until
+				i > max
+			loop
+				across keys as key
+				loop
+					if key.item.same_string (header.at (i)) then
+						matching_types.extend (types.at (i))
+					end
+				end
+				i := i + 1
+			end
+			result := matching_types
+		end
+
 	to_string : STRING
 
 		local

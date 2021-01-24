@@ -38,18 +38,22 @@ feature -- Public
 		do
 			if not json_hash.has (name) then
 				create file_lines.make_from_iterable (file_manager.read_file_lines (path))
-				create header.make_from_iterable (File_manager.split_semicolon (file_lines.at (1)))
-				create types.make_from_iterable (File_manager.split_semicolon (file_lines.at (2)))
-				file_lines.remove_i_th (1)
-				file_lines.remove_i_th (1)
-				create body.make_from_iterable (File_manager.split_semicolon_multiple (file_lines))
-				create json.make_from_list (name, header, types, body)
-				json_hash.put (json, name)
-				Io.put_string (json.to_string)
-				Io.new_line
+				if not file_lines.is_empty then
+					create header.make_from_iterable (File_manager.split_semicolon (file_lines.at (1)))
+					create types.make_from_iterable (File_manager.split_semicolon (file_lines.at (2)))
+					file_lines.remove_i_th (1)
+					file_lines.remove_i_th (1)
+					create body.make_from_iterable (File_manager.split_semicolon_multiple (file_lines))
+					create json.make_from_list (name, header, types, body)
+					json_hash.put (json, name)
+					Io.put_string (json.to_string)
+				else
+					Io.put_string ("File not found")
+				end
 			else
 				Io.put_string ("Specified name already exists")
 			end
+			Io.new_line
 		end
 
 	save (name: STRING; path: STRING; csv: BOOLEAN)
@@ -69,6 +73,7 @@ feature -- Public
 			else
 				Io.put_string ("Specified name doesnt exist")
 			end
+			Io.new_line
 		end
 
 	json_from_matching (name: STRING; new_name: STRING; key: STRING; value: STRING)
@@ -83,12 +88,43 @@ feature -- Public
 			json := json_hash.at (name)
 			if attached json and not json_hash.has (new_name) then
 				create matching_lines.make_from_iterable (json.matching_lines (key, value))
-				create new_json.make_from_json (new_name, json.header, json.types, matching_lines)
-				json_hash.put (new_json, new_name)
-				Io.put_string (new_json.to_string)
-				Io.new_line
+				if not matching_lines.is_empty then
+					create new_json.make_from_json (new_name, json.header, json.types, matching_lines)
+					json_hash.put (new_json, new_name)
+					Io.put_string (new_json.to_string)
+				else
+					Io.put_string ("No matching lines")
+				end
 			else
 				Io.put_string ("Specified name doesnt exist or new name already exists")
 			end
+			Io.new_line
+		end
+
+	json_from_columns (name: STRING; new_name:STRING; keys: ARRAYED_LIST [STRING])
+
+		local
+			json: JSON_FILE
+			new_json: JSON_FILE
+			matching_columns: ARRAYED_LIST [JSON_OBJECT]
+			matching_types: ARRAYED_LIST [STRING]
+
+		do
+			create json.make
+			json := json_hash.at (name)
+			if attached json and not json_hash.has (new_name) then
+				create matching_columns.make_from_iterable (json.get_columns (keys))
+				create matching_types.make_from_iterable (json.get_types (keys))
+				if not matching_columns.is_empty and matching_types.count = keys.count then
+					create new_json.make_from_json (new_name, keys, matching_types, matching_columns)
+					json_hash.put (new_json, new_name)
+					Io.put_string (new_json.to_string)
+				else
+					Io.put_string ("One or more columns was not found")
+				end
+			else
+				Io.put_string ("Specified name doesnt exist or new name already exists")
+			end
+			Io.new_line
 		end
 end
