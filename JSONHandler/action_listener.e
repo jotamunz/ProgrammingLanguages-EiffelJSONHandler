@@ -24,6 +24,19 @@ feature -- Initialization
 
 feature {NONE} -- Private
 
+	get_parameters (operation: ARRAYED_LIST [STRING]): ARRAYED_LIST [STRING]
+
+		local
+			parameters: ARRAYED_LIST [STRING]
+
+		do
+			create parameters.make_from_iterable (operation)
+			parameters.remove_i_th (1)
+			parameters.remove_i_th (1)
+			parameters.remove_i_th (1)
+			result := parameters
+		end
+
 feature -- Public
 
 	run
@@ -49,6 +62,10 @@ feature -- Public
 					save(operation.at (2), operation.at (3), false)
 				elseif operation.at (1).same_string ("savecsv") and operation.count = 3 then
 					save(operation.at (2), operation.at (3), true)
+				elseif operation.at (1).same_string ("select") and operation.count = 6 then
+					json_from_matching(operation.at (2), operation.at (3), operation.at (4), operation.at (6))
+				elseif operation.at (1).same_string ("project") and operation.count > 3 then
+					json_from_columns(operation.at (2), operation.at (3), get_parameters(operation))
 				elseif operation.at (1).same_string ("exit") then
 					running := false
 				else
@@ -127,7 +144,9 @@ feature -- Public
 				if not matching_lines.is_empty then
 					create new_json.make_from_json (new_name, json.header, json.types, matching_lines)
 					json_hash.put (new_json, new_name)
-					Io.put_string (new_json.to_string)
+					Io.put_string ("loaded file " + new_name)
+					Io.new_line
+					Io.put_string (new_json.body_to_string)
 				else
 					Io.put_string ("No matching lines")
 				end
@@ -154,7 +173,9 @@ feature -- Public
 				if not matching_columns.is_empty and matching_types.count = keys.count then
 					create new_json.make_from_json (new_name, keys, matching_types, matching_columns)
 					json_hash.put (new_json, new_name)
-					Io.put_string (new_json.to_string)
+					Io.put_string ("loaded file " + new_name)
+					Io.new_line
+					Io.put_string (new_json.body_to_string)
 				else
 					Io.put_string ("One or more columns was not found")
 				end
