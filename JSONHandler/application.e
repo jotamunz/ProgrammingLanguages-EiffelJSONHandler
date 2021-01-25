@@ -21,8 +21,6 @@ feature {NONE} -- Initialization
 		do
 			create listener.make
 			listener.run
-
-			--listener.json_from_matching("Equipos", "Equipos2", "alojamiento", "%"" + "Edificio A1" + "%"")
 		end
 
 end

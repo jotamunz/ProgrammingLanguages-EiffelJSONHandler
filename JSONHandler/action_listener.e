@@ -24,6 +24,30 @@ feature -- Initialization
 
 feature {NONE} -- Private
 
+	get_parameter  (operation: ARRAYED_LIST [STRING]): STRING
+
+		local
+			parameters: ARRAYED_LIST [STRING]
+			parameter: STRING
+
+		do
+			create parameters.make_from_iterable (operation)
+			create parameter.make_empty
+			parameters.remove_i_th (1)
+			parameters.remove_i_th (1)
+			parameters.remove_i_th (1)
+			parameters.remove_i_th (1)
+			parameters.remove_i_th (1)
+			parameter.append (parameters.at (1))
+			parameters.remove_i_th (1)
+			across parameters as param
+			loop
+				parameter.append (" ")
+				parameter.append (param.item)
+			end
+			result := parameter
+		end
+
 	get_parameters (operation: ARRAYED_LIST [STRING]): ARRAYED_LIST [STRING]
 
 		local
@@ -62,8 +86,8 @@ feature -- Public
 					save(operation.at (2), operation.at (3), false)
 				elseif operation.at (1).same_string ("savecsv") and operation.count = 3 then
 					save(operation.at (2), operation.at (3), true)
-				elseif operation.at (1).same_string ("select") and operation.count = 6 then
-					json_from_matching(operation.at (2), operation.at (3), operation.at (4), operation.at (6))
+				elseif operation.at (1).same_string ("select") and operation.count > 5 then
+					json_from_matching(operation.at (2), operation.at (3), operation.at (4), get_parameter(operation))
 				elseif operation.at (1).same_string ("project") and operation.count > 3 then
 					json_from_columns(operation.at (2), operation.at (3), get_parameters(operation))
 				elseif operation.at (1).same_string ("exit") then
