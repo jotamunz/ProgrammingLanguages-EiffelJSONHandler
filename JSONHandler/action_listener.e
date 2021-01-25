@@ -26,6 +26,39 @@ feature {NONE} -- Private
 
 feature -- Public
 
+	run
+
+		local
+			running: BOOLEAN
+			operation: ARRAYED_LIST [STRING]
+
+		do
+			Io.put_string ("Main Menu")
+			Io.new_line
+			from
+				running := true
+			until
+				running = false
+			loop
+				Io.put_string ("input an operation: ")
+				Io.read_line
+				create operation.make_from_iterable (Io.last_string.split (' '))
+				if operation.at (1).same_string ("load") and operation.count = 3 then
+					load(operation.at (2), operation.at (3))
+				elseif operation.at (1).same_string ("save") and operation.count = 3 then
+					save(operation.at (2), operation.at (3), false)
+				elseif operation.at (1).same_string ("savecsv") and operation.count = 3 then
+					save(operation.at (2), operation.at (3), true)
+				elseif operation.at (1).same_string ("exit") then
+					running := false
+				else
+					Io.put_string ("Unrecognized operation")
+					Io.new_line
+				end
+			end
+
+		end
+
 	load (name: STRING; path: STRING)
 
 		local
@@ -46,7 +79,9 @@ feature -- Public
 					create body.make_from_iterable (File_manager.split_semicolon_multiple (file_lines))
 					create json.make_from_list (name, header, types, body)
 					json_hash.put (json, name)
-					Io.put_string (json.to_string)
+					Io.put_string ("loaded file " + name)
+					Io.new_line
+					Io.put_string (json.body_to_string)
 				else
 					Io.put_string ("File not found")
 				end
@@ -70,6 +105,7 @@ feature -- Public
 				else
 					file_manager.write_file (path, json.body_to_string)
 				end
+				Io.put_string ("Saved file " + name)
 			else
 				Io.put_string ("Specified name doesnt exist")
 			end

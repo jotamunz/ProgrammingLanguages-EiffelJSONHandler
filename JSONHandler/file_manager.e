@@ -85,4 +85,5 @@ feature -- Public
 			file.put_string (text)
 			file.close
 		end
+		
 end
