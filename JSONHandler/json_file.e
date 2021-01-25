@@ -85,6 +85,21 @@ feature -- Initialization
 
 feature {NONE} -- Private
 
+	format_double (double: STRING) : STRING
+
+		 local
+		 	formatter: FORMAT_DOUBLE
+		 	formatted_double: STRING
+
+		 do
+		 	create formatter.make (12, 2)
+		 	create formatted_double.make_empty
+			formatted_double := formatter.formatted (double.to_real_64)
+			formatted_double.adjust
+			formatted_double.replace_substring_all (".", ",")
+			result := formatted_double
+		 end
+
 feature -- Public
 
 	matching_lines (key: STRING; value_string: STRING) : ARRAYED_LIST [JSON_OBJECT]
@@ -97,7 +112,11 @@ feature -- Public
 			across body as line
 			loop
 				if attached line.item.item (key) as value then
-					if value_string.same_string (value.representation) then
+					if value.is_number then
+						if value_string.same_string (format_double(value.representation)) then
+							matching_jsons.extend (line.item)
+						end
+					elseif value_string.same_string (value.representation) then
 						matching_jsons.extend (line.item)
 					end
 				end
@@ -191,7 +210,11 @@ feature -- Public
 				across header as key
 				loop
 					if attached line.item.item (key.item) as value then
-						body_string.append ("%"" + key.item + "%":" + value.representation + ", ")
+						if value.is_number then
+							body_string.append ("%"" + key.item + "%":" + format_double(value.representation) + ", ")
+						else
+							body_string.append ("%"" + key.item + "%":" + value.representation + ", ")
+						end
 					end
 				end
 				body_string.remove_tail (2)
@@ -234,6 +257,8 @@ feature -- Public
 							if attached {JSON_STRING} value then
 								value_string.remove_head (1)
 								value_string.remove_tail (1)
+							elseif value.is_number then
+								value_string := format_double(value.representation)
 							end
 							json_string.append (value_string + ";")
 						end
